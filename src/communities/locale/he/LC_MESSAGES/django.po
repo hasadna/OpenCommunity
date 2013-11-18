@@ -426,3 +426,12 @@ msgstr "טויטת סיכום פגישה"
 
 #~ msgid "Community Members"
 #~ msgstr "חברי קהילה"
+
+#~ msgid "Contact us"
+#~ msgstr "צור קשר"
+
+#~ msgid "phone"
+#~ msgstr "טלפון"
+
+#~ msgid "message"
+#~ msgstr "מסר"

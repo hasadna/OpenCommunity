@@ -4,7 +4,7 @@ from django.db.models.query_utils import Q
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from issues.models import ProposalStatus, IssueStatus
+from issues.models import ProposalStatus, IssueStatus,Issue
 from meetings.models import MeetingParticipant
 from ocd.base_models import HTMLField, UIDMixin
 from ocd.email import send_mails
@@ -292,3 +292,12 @@ class Community(UIDMixin):
 
         return [as_agenda_item(x) for x in
                 self.issues.filter(status__in=IssueStatus.IS_UPCOMING)]
+
+class ContactUs(models.Model):
+    contactName = models.CharField(max_length = 75, null = True, blank = True)
+    community = models.ForeignKey(Community)
+    issue = models.ForeignKey(Issue)
+    email = models.EmailField(max_length = 75, null = True, blank = True)
+    phone = models.CharField(max_length = 75, null = True, blank = True)
+    message = models.CharField(max_length = 1000, null = True, blank = True)
+    time = models.DateTimeField(auto_now_add = True)#have a time field only for model for ordering the messages
