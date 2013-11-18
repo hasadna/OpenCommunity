@@ -29,5 +29,7 @@ urlpatterns = patterns('',
         views.ProtocolDraftPreviewView.as_view(),
         name='preview_ongoing_protocol'),
 
-
+    url(r'^contactus/$',
+        views.ContactUsView.as_view(),
+        name='contact_us'),
 )

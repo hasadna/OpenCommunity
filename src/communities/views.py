@@ -1,7 +1,10 @@
+from django.http import HttpResponse,HttpResponseRedirect
+from django.shortcuts import render_to_response
+from django.template.context import RequestContext
 from communities import models
 from communities.forms import EditUpcomingMeetingForm, \
     PublishUpcomingMeetingForm, UpcomingMeetingParticipantsForm, StartMeetingForm, \
-    EditUpcomingMeetingSummaryForm
+    EditUpcomingMeetingSummaryForm,ContactUsForm
 from communities.models import SendToOption
 from django.conf import settings
 from django.contrib import messages
@@ -14,6 +17,17 @@ from django.views.generic.edit import UpdateView
 from ocd.base_views import ProtectedMixin, AjaxFormView
 import datetime
 import json
+from communities.models import Community
+from django.conf import settings
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import redirect_to_login
+from django.http.response import HttpResponseForbidden, HttpResponse
+from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
+from users.permissions import has_community_perm, get_community_perms
+from ocd.email import send_mails
+import json
+from django.views.generic.base import View
 from issues.models import IssueStatus
 
 
@@ -190,3 +204,28 @@ class ProtocolDraftPreviewView(CommunityModelMixin, DetailView):
     required_permission = 'meetings.add_meeting'
 
     template_name = "emails/protocol_draft.html"
+
+
+class ContactUsView(View):
+    def get(self,request,pk):
+        user = request.user
+        form = ContactUsForm()
+        community = Community.objects.get(pk = pk)
+        form.fields['community'].initial = community
+        get_response = True
+        resp = render_to_response('communities/contact_us.html',context_instance=RequestContext(request,{
+            'form':form,
+            'get_response':get_response,
+            'valid':form.is_valid(),
+            'authenticated':user.is_authenticated()
+        }))
+        return resp
+    def post(self,request,pk):
+        form = ContactUsForm (request.POST) #bound form to contact
+        get_response = False
+        user = request.user
+        resp = HttpResponse("")
+        if user.is_authenticated() and form.is_valid():
+            c=form.save(commit= True)
+            send_mails(c.email, ['ehudmagal@gmail.com'], 'message from open community', c.message, '')
+        return resp
