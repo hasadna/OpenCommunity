@@ -198,8 +198,7 @@ def _base_send_mail(community, notification_type, sender, send_to, data=None,
             can_straw_vote = community.upcoming_proposals_any(
                  {'is_open': True}, user=recipient, community=community)\
             and community.upcoming_meeting_is_published
-            upcoming_issues = community.upcoming_issues(user=recipient,
-                                                        community=community)
+            upcoming_issues = community.upcoming_issues(user=recipient)
             issues = []
 
             for i in upcoming_issues:

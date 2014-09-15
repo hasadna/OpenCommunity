@@ -99,8 +99,7 @@ class MeetingCreateView(AjaxFormView, MeetingMixin, CreateView):
 
     def get_form_kwargs(self):
         kwargs = super(MeetingCreateView, self).get_form_kwargs()
-        kwargs['issues'] = self.community.upcoming_issues(
-            user=self.request.user, community=self.community)
+        kwargs['issues'] = self.community.upcoming_issues(user=self.request.user)
         return kwargs
 
 

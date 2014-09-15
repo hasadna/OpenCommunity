@@ -157,8 +157,7 @@ class IssueDetailView(IssueMixin, DetailView):
         d['proposals'] = self.object.proposals.object_access_control(
                 user=self.request.user, community=self.community).open()
 
-        d['upcoming_issues'] = self.object.community.upcoming_issues(
-                user=self.request.user, community=self.community)
+        d['upcoming_issues'] = self.object.community.upcoming_issues(user=self.request.user)
 
         d['agenda_items'] = self.object.agenda_items.all()
         for ai in d['agenda_items']:
