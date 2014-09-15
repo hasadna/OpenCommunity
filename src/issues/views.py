@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db.models.aggregates import Max
 from django.http.response import HttpResponse, HttpResponseBadRequest, \
     HttpResponseForbidden
@@ -19,7 +20,7 @@ from oc_util.templatetags.opencommunity import minutes, board_voters_on_proposal
 from ocd.base_views import CommunityMixin, AjaxFormView, json_response
 from ocd.validation import enhance_html
 from ocd.base_managers import ConfidentialSearchQuerySet
-from shultze_vote import send_issue_ranking
+#from shultze_vote import send_issue_ranking
 from users.default_roles import DefaultGroups
 from users.models import Membership
 from users.permissions import has_community_perm
@@ -30,6 +31,11 @@ import json
 import mimetypes
 from datetime import date
 
+if getattr(settings, 'USE_SHULTZE', False):
+    from shultze_vote import send_issue_ranking
+else:
+    from stubs.order_issues import send_issue_ranking
+    
 
 class IssueMixin(CommunityMixin):
 
@@ -151,8 +157,7 @@ class IssueDetailView(IssueMixin, DetailView):
         d['proposals'] = self.object.proposals.object_access_control(
                 user=self.request.user, community=self.community).open()
 
-        d['upcoming_issues'] = self.object.community.upcoming_issues(
-                user=self.request.user, community=self.community)
+        d['upcoming_issues'] = self.object.community.upcoming_issues(user=self.request.user)
 
         d['agenda_items'] = self.object.agenda_items.all()
         for ai in d['agenda_items']:

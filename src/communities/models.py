@@ -130,23 +130,23 @@ class Community(UIDMixin):
     def get_upcoming_absolute_url(self):
         return "community", (str(self.pk),)
 
-    def upcoming_issues(self, user=None, community=None, upcoming=True):
+    def upcoming_issues(self, user=None, upcoming=True):
         l = issues_models.IssueStatus.IS_UPCOMING if upcoming else \
             issues_models.IssueStatus.NOT_IS_UPCOMING
 
         if self.issues.all():
             rv = self.issues.object_access_control(
-                user=user, community=community).filter(
+                user=user, community=self).filter(
                 active=True, status__in=(l)).order_by(
                 'order_in_upcoming_meeting')
         else:
             rv = None
         return rv
 
-    def available_issues(self, user=None, community=None):
+    def available_issues(self, user=None):
         if self.issues.all():
             rv = self.issues.object_access_control(
-                user=user, community=community).filter(
+                user=user, community=self).filter(
                 active=True, status=issues_models.IssueStatus.OPEN).order_by(
                 '-created_at')
         else:
@@ -159,8 +159,8 @@ class Community(UIDMixin):
         ).order_by('order_by_votes')
 
     def issues_ready_to_close(self, user=None, community=None):
-        if self.upcoming_issues(user=user, community=community):
-            rv = self.upcoming_issues(user=user, community=community).filter(
+        if self.upcoming_issues(user=user):
+            rv = self.upcoming_issues(user=user).filter(
             proposals__active=True,
             proposals__decided_at_meeting=None,
             proposals__status__in=[
@@ -287,7 +287,7 @@ class Community(UIDMixin):
 
     def _get_upcoming_proposals(self, user=None, community=None):
         proposals = []
-        upcoming = self.upcoming_issues(user=user, community=community)
+        upcoming = self.upcoming_issues(user=user)
         if upcoming:
             for issue in upcoming:
                 if issue.proposals.all():
@@ -357,7 +357,7 @@ class Community(UIDMixin):
             self.voting_ends_at = None
             self.save()
 
-            for i, issue in enumerate(self.upcoming_issues(user=user, community=community)):
+            for i, issue in enumerate(self.upcoming_issues(user=user)):
 
                 proposals = issue.proposals.filter(
                     active=True,
